@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="thank-you-page" class="container">
+    <div class="form-container text-center">
+        <div class="text-center" style="margin-bottom: 2rem;">
+            <i id="checkmark-icon" class="fas fa-check-circle" style="font-size: 5rem; color: var(--success-color);"></i>
+        </div>
+        
+        <h2 id="thank-you-message">با تشکر از شما، {{ user.sub }} عزیز!</h2>
+        
+        <div id="follow-up-message" style="margin: 2rem 0;">
+            <p>پاسخ‌های شما با موفقیت ثبت شد. از مشارکت شما در این آزمون سپاسگزاریم.</p>
+            <p style="margin-top: 1rem;">کارشناسان ما در حال بررسی نتایج هستند و در طی چند روز آینده با شما تماس خواهند گرفت تا نتایج را به صورت کامل در اختیارتان قرار دهند.</p>
+        </div>
+        
+        <div class="animate-on-scroll" data-animation="fade-in" style="margin-top: 2rem;">
+            <a href="/home" class="btn btn-hover-effect">بازگشت به صفحه اصلی</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', path='/js/exam.js') }}"></script>
+{% endblock %}

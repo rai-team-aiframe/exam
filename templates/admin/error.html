@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container text-center">
+        <div class="text-center" style="margin-bottom: 2rem;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 5rem; color: var(--danger-color);"></i>
+        </div>
+        
+        <h2>{{ title|default("خطا") }}</h2>
+        
+        <div style="margin: 2rem 0;">
+            <p>{{ message|default("متأسفانه خطایی رخ داده است.") }}</p>
+        </div>
+        
+        <div class="animate-on-scroll" data-animation="fade-in" style="margin-top: 2rem;">
+            <a href="/admin/dashboard" class="btn btn-hover-effect">بازگشت به پنل مدیریت</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

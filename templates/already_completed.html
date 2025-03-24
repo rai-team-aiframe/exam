@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container text-center">
+        <div class="text-center" style="margin-bottom: 2rem;">
+            <i class="fas fa-info-circle" style="font-size: 5rem; color: var(--info-color);"></i>
+        </div>
+        
+        <h2>آزمون قبلاً تکمیل شده است</h2>
+        
+        <div style="margin: 2rem 0;">
+            <p>{{ user.sub }} عزیز، شما قبلاً این آزمون را تکمیل کرده‌اید.</p>
+            <p style="margin-top: 1rem;">کارشناسان ما در حال بررسی نتایج هستند و به زودی با شما تماس خواهند گرفت.</p>
+        </div>
+        
+        <div class="animate-on-scroll" data-animation="fade-in" style="margin-top: 2rem;">
+            <a href="/home" class="btn btn-hover-effect">بازگشت به صفحه اصلی</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

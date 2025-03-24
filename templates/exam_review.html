@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div id="review-container" class="form-container animate-on-scroll" data-animation="fade-in">
+        <h2>نتیجه بررسی آزمون شخصیت</h2>
+        
+        <div class="review-message">
+            <div class="alert alert-success">
+                <p><i class="fas fa-check-circle" style="font-size: 24px; margin-left: 10px;"></i>آزمون شما با موفقیت بررسی شده است.</p>
+            </div>
+            
+            <div class="review-info">
+                <p class="admin-info">بررسی شده توسط: <strong>{{ review.admin_username }}</strong></p>
+                <p class="date-info">تاریخ بررسی: <strong>{{ review.created_at }}</strong></p>
+            </div>
+            
+            <div class="review-content animate-on-scroll" data-animation="slide-in-up">
+                <h3>نتیجه بررسی:</h3>
+                <div class="review-text">
+                    {{ review.review_text | replace('\n', '<br>') | safe }}
+                </div>
+            </div>
+            
+            <div class="next-steps animate-on-scroll" data-animation="fade-in">
+                <h3>گام های بعدی</h3>
+                <p>شما می‌توانید برای بحث بیشتر در مورد نتایج آزمون خود، با کارشناسان ما تماس بگیرید.</p>
+                <p>شماره تماس پشتیبانی: ۰۹۱۲۳۴۵۶۷۸۹</p>
+            </div>
+        </div>
+        
+        <div class="text-center" style="margin-top: 2rem;">
+            <a href="/home" class="btn btn-primary btn-hover-effect">بازگشت به صفحه اصلی</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .review-message {
+        margin: 2rem 0;
+    }
+    
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .review-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .review-content {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border-right: 4px solid var(--primary-color);
+    }
+    
+    .review-text {
+        line-height: 1.8;
+        white-space: pre-line;
+    }
+    
+    .next-steps {
+        padding: 1.5rem;
+        background-color: #e3f2fd;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+    
+    .next-steps h3 {
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <h1 class="animate-on-scroll" data-animation="fade-in">به آزمون آنلاین شخصیت خوش آمدید</h1>
+        <p class="animate-on-scroll" data-animation="fade-in">با شرکت در این آزمون، ویژگی‌های شخصیتی خود را بهتر بشناسید و از نتایج آن برای پیشرفت شخصی استفاده کنید.</p>
+        <div class="animate-on-scroll" data-animation="slide-in-up">
+            {% if request.cookies.get('access_token') %}
+                <a href="/exam" class="btn btn-hover-effect">شروع آزمون</a>
+            {% else %}
+                <a href="/signup" class="btn btn-hover-effect">ثبت نام و شروع آزمون</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="container">
+    <div class="features">
+        <div class="row">
+            <div class="feature-card animate-on-scroll" data-animation="slide-in-right" style="margin: 2rem 0; padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); text-align: center;">
+                <i class="fas fa-brain" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                <h3>بررسی جامع شخصیت</h3>
+                <p>این آزمون با استفاده از پرسشنامه استاندارد، پنج عامل اصلی شخصیت شما را ارزیابی می‌کند.</p>
+            </div>
+            
+            <div class="feature-card animate-on-scroll" data-animation="slide-in-up" style="margin: 2rem 0; padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); text-align: center;">
+                <i class="fas fa-chart-pie" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                <h3>نتایج دقیق و معتبر</h3>
+                <p>نتایج آزمون با استفاده از روش‌های علمی تحلیل شده و گزارش کاملی از ویژگی‌های شخصیتی شما ارائه می‌دهد.</p>
+            </div>
+            
+            <div class="feature-card animate-on-scroll" data-animation="slide-in-left" style="margin: 2rem 0; padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); text-align: center;">
+                <i class="fas fa-lightbulb" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></i>
+                <h3>پیشنهادات کاربردی</h3>
+                <p>بر اساس نتایج آزمون، پیشنهادات و راهکارهای عملی برای بهبود و پیشرفت شخصی به شما ارائه می‌شود.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container">
+    <div class="about animate-on-scroll" data-animation="fade-in" style="margin: 3rem 0; padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: var(--primary-color); margin-bottom: 1rem;">درباره این آزمون</h2>
+        <p>آزمون شخصیتی پنج عاملی بزرگ (Big Five)، یکی از معتبرترین آزمون‌های روانشناسی برای سنجش شخصیت است که پنج بعد اصلی شخصیت را اندازه‌گیری می‌کند:</p>
+        
+        <ul style="list-style-type: none; padding: 0; margin: 2rem 0;">
+            <li style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 4px;">
+                <strong>برون‌گرایی (Extraversion):</strong> میزان تمایل به تعامل با دیگران و دنیای بیرون
+            </li>
+            <li style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 4px;">
+                <strong>توافق‌پذیری (Agreeableness):</strong> میزان همدلی و توجه به نیازهای دیگران
+            </li>
+            <li style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 4px;">
+                <strong>وظیفه‌شناسی (Conscientiousness):</strong> میزان نظم، دقت و مسئولیت‌پذیری
+            </li>
+            <li style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 4px;">
+                <strong>روان‌رنجوری (Neuroticism):</strong> میزان ثبات هیجانی و مقابله با استرس
+            </li>
+            <li style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 4px;">
+                <strong>گشودگی به تجربه (Openness):</strong> میزان کنجکاوی و علاقه به تجربیات جدید
+            </li>
+        </ul>
+        
+        <p>شناخت این ابعاد شخصیتی می‌تواند به شما در درک بهتر خود، بهبود روابط بین فردی، انتخاب مسیر شغلی مناسب و رشد شخصی کمک کند.</p>
+        
+        <div class="text-center" style="margin-top: 2rem;">
+            {% if request.cookies.get('access_token') %}
+                <a href="/exam" class="btn btn-hover-effect">شروع آزمون</a>
+            {% else %}
+                <a href="/signup" class="btn btn-hover-effect">ثبت نام و شروع آزمون</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

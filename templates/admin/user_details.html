@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="admin-panel">
+        <div class="panel-header">
+            <h2 class="animate-on-scroll" data-animation="fade-in">اطلاعات کاربر: {{ user.username }}</h2>
+            
+            <div class="action-buttons animate-on-scroll" data-animation="fade-in">
+                <a href="/admin/dashboard" class="btn btn-secondary">بازگشت به پنل مدیریت</a>
+                <a href="/admin/user/{{ user.id }}/pdf" class="btn btn-primary">دانلود گزارش اکسل</a>
+                <a href="/admin/user/{{ user.id }}/review" class="btn btn-success">بررسی شده</a>
+                <a href="/admin/user/{{ user.id }}/reset" class="btn btn-danger">آزمون دوباره</a>
+            </div>
+        </div>
+        
+        <div class="user-info animate-on-scroll" data-animation="slide-in-right">
+            <h3>اطلاعات شخصی</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="label">نام کاربری:</span>
+                    <span class="value">{{ user.username }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">نام:</span>
+                    <span class="value">{{ user.first_name }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">نام خانوادگی:</span>
+                    <span class="value">{{ user.last_name }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">کد ملی:</span>
+                    <span class="value">{{ user.id_number }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">تاریخ تولد:</span>
+                    <span class="value">{{ user.birth_date }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">شماره تماس:</span>
+                    <span class="value">{{ user.phone_number }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">تاریخ ثبت نام:</span>
+                    <span class="value">{{ user.created_at }}</span>
+                </div>
+            </div>
+        </div>
+        
+        {% if user.has_review %}
+        <div class="exam-review animate-on-scroll" data-animation="slide-in-right">
+            <h3>نتیجه بررسی آزمون</h3>
+            <div class="review-info">
+                <p><strong>بررسی شده توسط:</strong> {{ user.reviewed_by }}</p>
+                <p><strong>تاریخ بررسی:</strong> {{ user.review_date }}</p>
+                <div class="review-text">
+                    <strong>متن بررسی:</strong>
+                    <div class="review-content">{{ user.review_text | replace('\n', '<br>') | safe }}</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="exam-responses animate-on-scroll" data-animation="slide-in-up">
+            <h3>پاسخ های آزمون</h3>
+            
+            {% if exam_responses|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>شماره</th>
+                                <th>سوال</th>
+                                <th>پاسخ</th>
+                                <th>تاریخ پاسخ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for response in exam_responses %}
+                                <tr>
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ response.question_text }}</td>
+                                    <td>{{ response.response_text }}</td>
+                                    <td>{{ response.created_at }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">این کاربر هنوز هیچ پاسخی به آزمون نداده است.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .admin-panel {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin: 2rem auto;
+    }
+    
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .user-info {
+        margin-bottom: 2rem;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .info-item {
+        padding: 0.75rem;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+    }
+    
+    .label {
+        font-weight: bold;
+        margin-left: 0.5rem;
+    }
+    
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .table th, .table td {
+        padding: 0.75rem;
+        text-align: right;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .exam-review {
+        margin-bottom: 2rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1.5rem;
+        background-color: #f9f9f9;
+    }
+    
+    .review-info {
+        margin-top: 1rem;
+    }
+    
+    .review-text {
+        margin-top: 1rem;
+    }
+    
+    .review-content {
+        background-color: white;
+        border: 1px solid #eee;
+        border-radius: 4px;
+        padding: 1rem;
+        margin-top: 0.5rem;
+        white-space: pre-line;
+    }
+    
+    .btn-success {
+        background-color: #28a745;
+    }
+    
+    .btn-success:hover {
+        background-color: #218838;
+    }
+    
+    .btn-danger {
+        background-color: #dc3545;
+    }
+    
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+</style>
+{% endblock %}

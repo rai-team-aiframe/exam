@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container animate-on-scroll" data-animation="scale-in">
+        <h2>ثبت نام در سایت</h2>
+        
+        <div id="error-container">
+            {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+        </div>
+        
+        <form id="signup-form" method="POST" action="/signup">
+            <div class="form-group animate-on-scroll stagger-1" data-animation="slide-in-right">
+                <label for="username">نام کاربری:</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="نام کاربری 3 تا 10 کاراکتر" value="{{ username or '' }}" required>
+                <small>نام کاربری باید بین 3 تا 10 کاراکتر باشد و فقط شامل حروف انگلیسی، اعداد و _ باشد.</small>
+            </div>
+            
+            <div class="form-group animate-on-scroll stagger-2" data-animation="slide-in-right">
+                <label for="password">رمز عبور:</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="رمز عبور پیچیده بین 5 تا 30 کاراکتر" required>
+                <small>رمز عبور باید بین 5 تا 30 کاراکتر باشد و شامل حروف، اعداد و کاراکترهای خاص باشد.</small>
+            </div>
+            
+            <div class="form-group animate-on-scroll stagger-3" data-animation="slide-in-right">
+                <label for="id_number">کد ملی:</label>
+                <input type="text" class="form-control" id="id_number" name="id_number" placeholder="کد ملی 10 رقمی" value="{{ id_number or '' }}" required>
+                <small>کد ملی باید دقیقاً 10 رقم باشد.</small>
+            </div>
+            
+            <div class="form-row" style="display: flex; gap: 20px;">
+                <div class="form-group animate-on-scroll stagger-4" data-animation="slide-in-right" style="flex: 1;">
+                    <label for="first_name">نام:</label>
+                    <input type="text" class="form-control" id="first_name" name="first_name" placeholder="نام" value="{{ first_name or '' }}" required>
+                </div>
+                
+                <div class="form-group animate-on-scroll stagger-4" data-animation="slide-in-right" style="flex: 1;">
+                    <label for="last_name">نام خانوادگی:</label>
+                    <input type="text" class="form-control" id="last_name" name="last_name" placeholder="نام خانوادگی" value="{{ last_name or '' }}" required>
+                </div>
+            </div>
+            
+            <div class="form-group animate-on-scroll stagger-5" data-animation="slide-in-right">
+                <label for="birth_date">تاریخ تولد (شمسی):</label>
+                <input type="text" class="form-control" id="birth_date" name="birth_date" placeholder="مثال: 1370/01/01" value="{{ birth_date or '' }}" required>
+                <small>تاریخ را به فرمت شمسی وارد کنید.</small>
+            </div>
+            
+            <div class="form-group animate-on-scroll stagger-6" data-animation="slide-in-right">
+                <label for="phone_number">شماره تلفن همراه:</label>
+                <input type="text" class="form-control" id="phone_number" name="phone_number" placeholder="مثال: 09123456789" value="{{ phone_number or '' }}" required>
+                <small>شماره تلفن همراه باید با 09 شروع شود و دقیقاً 11 رقم باشد.</small>
+            </div>
+            
+            <div class="form-group animate-on-scroll stagger-7" data-animation="slide-in-up">
+                <button type="submit" class="btn btn-block btn-hover-effect">ثبت نام</button>
+            </div>
+        </form>
+        
+        <div class="text-center animate-on-scroll" data-animation="fade-in" style="margin-top: 20px;">
+            <p>قبلاً ثبت نام کرده‌اید؟ <a href="/login" style="color: var(--primary-color);">ورود به سیستم</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

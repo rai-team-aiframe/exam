@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div id="exam-intro" class="form-container animate-on-scroll" data-animation="fade-in">
+        <h2>آزمون شخصیت</h2>
+        
+        <div class="animate-on-scroll" data-animation="slide-in-up">
+            <p style="margin-bottom: 1.5rem;">{{ user.sub }} عزیز، به آزمون شخصیتی خوش آمدید!</p>
+            
+            <div style="background-color: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                <h3 style="color: var(--primary-color); margin-bottom: 1rem;">راهنمای آزمون:</h3>
+                
+                <ul style="margin-right: 1.5rem; line-height: 1.8;">
+                    <li>این آزمون شامل 60 سؤال است که ویژگی‌های شخصیتی شما را می‌سنجد.</li>
+                    <li>برای هر سؤال، گزینه‌ای را انتخاب کنید که بهترین توصیف از شماست.</li>
+                    <li>زمان محدودیتی ندارد، اما سعی کنید بدون وقفه‌های طولانی آزمون را تکمیل کنید.</li>
+                    <li>لطفاً به تمام سؤالات با صداقت پاسخ دهید. هیچ پاسخ "درست" یا "غلطی" وجود ندارد.</li>
+                    <li>پس از اتمام آزمون، کارشناسان ما نتایج را بررسی کرده و در چند روز آینده با شما تماس خواهند گرفت.</li>
+                </ul>
+            </div>
+            
+            <p style="margin-bottom: 2rem;">آیا برای شروع آزمون آماده هستید؟</p>
+            
+            <div class="text-center">
+                <a href="/exam/start" id="start-exam-btn" class="btn btn-hover-effect">بله، شروع کنید</a>
+            </div>
+        </div>
+    </div>
+    
+    <div id="exam-content" style="display: none;">
+        <!-- This section will be replaced with the actual exam content via JavaScript -->
+        <div class="text-center">
+            <div class="spinner"></div>
+            <p>در حال بارگیری سؤالات...</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', path='/js/exam.js') }}"></script>
+{% endblock %}
