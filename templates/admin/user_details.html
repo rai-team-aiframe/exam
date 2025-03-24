@@ -35,7 +35,7 @@
                 </div>
                 <div class="info-item">
                     <span class="label">تاریخ تولد:</span>
-                    <span class="value">{{ user.birth_date }}</span>
+                    <span class="value">{{ format_date_shamsi(user.birth_date) }}</span>
                 </div>
                 <div class="info-item">
                     <span class="label">شماره تماس:</span>
@@ -43,7 +43,7 @@
                 </div>
                 <div class="info-item">
                     <span class="label">تاریخ ثبت نام:</span>
-                    <span class="value">{{ user.created_at }}</span>
+                    <span class="value">{{ format_date_shamsi(user.created_at) }}</span>
                 </div>
             </div>
         </div>
@@ -52,8 +52,8 @@
         <div class="exam-review animate-on-scroll" data-animation="slide-in-right">
             <h3>نتیجه بررسی آزمون</h3>
             <div class="review-info">
-                <p><strong>بررسی شده توسط:</strong> {{ user.reviewed_by }}</p>
-                <p><strong>تاریخ بررسی:</strong> {{ user.review_date }}</p>
+                <p><strong>بررسی شده توسط:</strong> {{ user.admin_job_field or "کارشناس" }}</p>
+                <p><strong>تاریخ بررسی:</strong> {{ format_date_shamsi(user.review_date) }}</p>
                 <div class="review-text">
                     <strong>متن بررسی:</strong>
                     <div class="review-content">{{ user.review_text | replace('\n', '<br>') | safe }}</div>
@@ -82,7 +82,7 @@
                                     <td>{{ loop.index }}</td>
                                     <td>{{ response.question_text }}</td>
                                     <td>{{ response.response_text }}</td>
-                                    <td>{{ response.created_at }}</td>
+                                    <td>{{ format_date_shamsi(response.created_at) }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>

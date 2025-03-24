@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container animate-on-scroll" data-animation="scale-in">
+        <div class="panel-header">
+            <h2>{{ "ایجاد مدیر جدید" if is_new else "ویرایش مدیر" }}</h2>
+            
+            <div class="action-buttons">
+                <a href="/superuser/dashboard" class="btn btn-secondary">بازگشت به پنل سوپرادمین</a>
+            </div>
+        </div>
+        
+        <div id="error-container">
+            {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+        </div>
+        
+        <form id="admin-form" method="POST" action="{{ '/superuser/admin/new' if is_new else '/superuser/admin/' + admin_id|string }}">
+            <div class="form-group animate-on-scroll stagger-1" data-animation="slide-in-right">
+                <label for="username">نام کاربری مدیر: <span class="required">*</span></label>
+                <input type="text" class="form-control" id="username" name="username" 
+                       placeholder="نام کاربری مدیر را وارد کنید" 
+                       value="{{ username or admin.username if admin is defined else '' }}" required>
+                <small class="form-text text-muted">نام کاربری باید منحصر به فرد باشد</small>
+            </div>
+            
+            <div class="form-group animate-on-scroll stagger-2" data-animation="slide-in-right">
+                <label for="password">رمز عبور: {{ "* (الزامی)" if is_new else "(اختیاری برای تغییر)" }}</label>
+                <input type="password" class="form-control" id="password" name="password" 
+                       placeholder="{{ 'رمز عبور مدیر را وارد کنید' if is_new else 'برای تغییر رمز عبور پر کنید، در غیر این صورت خالی بگذارید' }}" 
+                       {{ 'required' if is_new else '' }}>
+                <small class="form-text text-muted">رمز عبور باید حداقل 8 کاراکتر شامل حروف، اعداد و کاراکترهای خاص باشد</small>
+            </div>
+            
+            <div class="form-group animate-on-scroll stagger-3" data-animation="slide-in-right">
+                <label for="full_name">نام و نام خانوادگی:</label>
+                <input type="text" class="form-control" id="full_name" name="full_name" 
+                       placeholder="نام و نام خانوادگی مدیر را وارد کنید" 
+                       value="{{ full_name or admin.full_name if admin is defined else '' }}">
+            </div>
+            
+            <div class="form-group animate-on-scroll stagger-4" data-animation="slide-in-right">
+                <label for="job_field">تخصص / حوزه کاری:</label>
+                <input type="text" class="form-control" id="job_field" name="job_field" 
+                       placeholder="تخصص یا حوزه کاری مدیر را وارد کنید" 
+                       value="{{ job_field or admin.job_field if admin is defined else '' }}">
+            </div>
+            
+            <div class="form-group animate-on-scroll stagger-5" data-animation="slide-in-right">
+                <label for="id_number">کد ملی:</label>
+                <input type="text" class="form-control" id="id_number" name="id_number" 
+                       placeholder="کد ملی مدیر را وارد کنید" 
+                       value="{{ id_number or admin.id_number if admin is defined else '' }}">
+            </div>
+            
+            <div class="form-group animate-on-scroll stagger-6" data-animation="slide-in-right">
+                <label for="phone_number">شماره تماس:</label>
+                <input type="text" class="form-control" id="phone_number" name="phone_number" 
+                       placeholder="شماره تماس مدیر را وارد کنید" 
+                       value="{{ phone_number or admin.phone_number if admin is defined else '' }}">
+            </div>
+            
+            <div class="form-group animate-on-scroll stagger-7" data-animation="slide-in-up">
+                <button type="submit" class="btn btn-block btn-hover-effect">
+                    {{ "ایجاد مدیر" if is_new else "بروزرسانی اطلاعات مدیر" }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-container {
+        max-width: 700px;
+    }
+    
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .btn-hover-effect {
+        background-color: #8e44ad;
+    }
+    
+    .btn-hover-effect:hover {
+        background-color: #732d91;
+    }
+    
+    .form-container h2 {
+        color: #8e44ad;
+    }
+    
+    .required {
+        color: red;
+    }
+    
+    .form-text {
+        font-size: 0.85rem;
+        color: #666;
+    }
+</style>
+{% endblock %}

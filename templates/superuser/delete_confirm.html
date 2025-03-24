@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container animate-on-scroll" data-animation="scale-in">
+        <div class="panel-header">
+            <h2>حذف مدیر: {{ admin.username }}</h2>
+            
+            <div class="action-buttons">
+                <a href="/superuser/dashboard" class="btn btn-secondary">بازگشت به پنل سوپرادمین</a>
+            </div>
+        </div>
+        
+        <div class="alert alert-danger animate-on-scroll" data-animation="shake">
+            <h3>هشدار!</h3>
+            <p>آیا از حذف این مدیر اطمینان دارید؟ این عملیات غیرقابل بازگشت است!</p>
+        </div>
+        
+        <div class="admin-info">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="label">نام کاربری:</span>
+                    <span class="value">{{ admin.username }}</span>
+                </div>
+                
+                <div class="info-item">
+                    <span class="label">نام و نام خانوادگی:</span>
+                    <span class="value">{{ admin.full_name or "تعیین نشده" }}</span>
+                </div>
+                
+                <div class="info-item">
+                    <span class="label">تخصص:</span>
+                    <span class="value">{{ admin.job_field or "تعیین نشده" }}</span>
+                </div>
+                
+                <div class="info-item">
+                    <span class="label">کد ملی:</span>
+                    <span class="value">{{ admin.id_number or "تعیین نشده" }}</span>
+                </div>
+                
+                <div class="info-item">
+                    <span class="label">شماره تماس:</span>
+                    <span class="value">{{ admin.phone_number or "تعیین نشده" }}</span>
+                </div>
+                
+                <div class="info-item">
+                    <span class="label">تاریخ ثبت نام:</span>
+                    <span class="value">{{ format_date_shamsi(admin.created_at) }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <form id="delete-admin-form" method="POST" action="/superuser/admin/{{ admin_id }}/delete">
+            <div class="form-actions">
+                <button type="submit" class="btn btn-danger">تایید حذف</button>
+                <a href="/superuser/dashboard" class="btn btn-secondary">انصراف</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-container {
+        max-width: 700px;
+    }
+    
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .form-container h2 {
+        color: #8e44ad;
+    }
+    
+    .admin-info {
+        margin: 2rem 0;
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
+    }
+    
+    .info-item {
+        padding: 0.75rem;
+        background-color: #fff;
+        border-radius: 4px;
+        border: 1px solid #eee;
+    }
+    
+    .label {
+        font-weight: bold;
+        margin-left: 0.5rem;
+        color: #555;
+    }
+    
+    .value {
+        color: #333;
+    }
+    
+    .form-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .btn-danger {
+        background-color: #e74c3c;
+    }
+    
+    .btn-danger:hover {
+        background-color: #c0392b;
+    }
+    
+    .alert {
+        border-right: 4px solid #c0392b;
+    }
+    
+    .alert h3 {
+        color: #c0392b;
+        margin-bottom: 0.5rem;
+    }
+    
+    @keyframes shake {
+        0%, 100% {
+            transform: translateX(0);
+        }
+        10%, 30%, 50%, 70%, 90% {
+            transform: translateX(-5px);
+        }
+        20%, 40%, 60%, 80% {
+            transform: translateX(5px);
+        }
+    }
+    
+    .shake {
+        animation: shake 0.8s cubic-bezier(.36,.07,.19,.97) both;
+    }
+</style>
+{% endblock %}

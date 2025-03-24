@@ -11,8 +11,8 @@
             </div>
             
             <div class="review-info">
-                <p class="admin-info">بررسی شده توسط: <strong>{{ review.admin_username }}</strong></p>
-                <p class="date-info">تاریخ بررسی: <strong>{{ review.created_at }}</strong></p>
+                <p class="admin-info">بررسی شده توسط: <strong>{{ review.admin_job_field or "کارشناس" }}</strong></p>
+                <p class="date-info">تاریخ بررسی: <strong>{{ format_date_shamsi(review.created_at) }}</strong></p>
             </div>
             
             <div class="review-content animate-on-scroll" data-animation="slide-in-up">

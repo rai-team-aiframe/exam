@@ -9,8 +9,9 @@ from fastapi.middleware.cors import CORSMiddleware
 # Import modules using absolute imports instead of relative imports
 from app.database import init_db, init_db_updates
 from app.questions import import_questions_from_list
-from app.routers import home, auth, exam, admin
+from app.routers import home, auth, exam, admin, superuser
 from app.admin_db import init_admin_db
+from app.superuser_db import init_superuser_db
 
 # Create the FastAPI app
 app = FastAPI(title="آزمون آنلاین شخصیت")
@@ -35,6 +36,7 @@ app.include_router(home.router)
 app.include_router(auth.router)
 app.include_router(exam.router)
 app.include_router(admin.router)
+app.include_router(superuser.router)  # Add superuser router
 
 # Root redirect to home
 @app.get("/", response_class=HTMLResponse)
@@ -52,6 +54,9 @@ async def startup_event():
     
     # Initialize admin database
     init_admin_db()
+    
+    # Initialize superuser database
+    init_superuser_db()
     
     # Import questions from the existing list
     questions_list = [

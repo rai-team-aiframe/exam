@@ -8,12 +8,16 @@ import json
 # Use absolute imports
 from app.database import get_all_questions, save_exam_response, mark_exam_completed, has_completed_exam, get_exam_review
 from app.routers.auth import get_current_user
+from app.date_utils import format_date_shamsi
 
 # Initialize router
 router = APIRouter(tags=["exam"])
 
 # Set up templates
 templates = Jinja2Templates(directory="templates")
+
+# Add date formatting function to Jinja environment
+templates.env.globals["format_date_shamsi"] = format_date_shamsi
 
 @router.get("/exam", response_class=HTMLResponse)
 async def exam_page(request: Request, current_user: Dict = Depends(get_current_user)):

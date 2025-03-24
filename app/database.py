@@ -3,6 +3,7 @@ import sqlite3
 import os
 from datetime import datetime
 from typing import List, Optional, Dict, Any, Tuple
+from fastapi import HTTPException, status
 
 
 def get_db_connection():
@@ -126,18 +127,45 @@ def create_user(username: str, password: str, id_number: str,
     conn = get_db_connection()
     cursor = conn.cursor()
     
+    # First check if the id_number already exists
+    if get_user_by_id_number(id_number):
+        conn.close()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="این کد ملی قبلاً در سیستم ثبت شده است."
+        )
+    
     created_at = datetime.now().isoformat()
     
-    cursor.execute('''
-    INSERT INTO users (username, password, id_number, first_name, last_name, birth_date, phone_number, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (username, password, id_number, first_name, last_name, birth_date, phone_number, created_at))
-    
-    user_id = cursor.lastrowid
-    conn.commit()
-    conn.close()
-    
-    return user_id
+    try:
+        cursor.execute('''
+        INSERT INTO users (username, password, id_number, first_name, last_name, birth_date, phone_number, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (username, password, id_number, first_name, last_name, birth_date, phone_number, created_at))
+        
+        user_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        
+        return user_id
+    except sqlite3.IntegrityError as e:
+        conn.close()
+        
+        if "users.username" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="این نام کاربری قبلاً استفاده شده است."
+            )
+        elif "users.id_number" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="این کد ملی قبلاً در سیستم ثبت شده است."
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="خطا در ثبت اطلاعات. لطفاً مجدداً تلاش کنید."
+            )
 
 
 def get_all_questions() -> List[Dict[str, Any]]:
@@ -255,12 +283,29 @@ def get_exam_review(user_id: int) -> Optional[Dict[str, Any]]:
     conn = get_db_connection()
     cursor = conn.cursor()
     
+    # Check if admin_profiles table exists in the admin database
     cursor.execute('''
-    SELECT er.*, a.username as admin_username
-    FROM exam_reviews er
-    JOIN admins a ON er.admin_id = a.id
-    WHERE er.user_id = ?
-    ''', (user_id,))
+    SELECT name FROM sqlite_master WHERE type='table' AND name='admin_profiles'
+    ''')
+    profiles_table_exists = cursor.fetchone() is not None
+    
+    if profiles_table_exists:
+        # Get exam review with admin job field
+        cursor.execute('''
+        SELECT er.*, a.username as admin_username, ap.job_field as admin_job_field
+        FROM exam_reviews er
+        JOIN admins a ON er.admin_id = a.id
+        LEFT JOIN admin_profiles ap ON a.id = ap.admin_id
+        WHERE er.user_id = ?
+        ''', (user_id,))
+    else:
+        # Get exam review without profile data
+        cursor.execute('''
+        SELECT er.*, a.username as admin_username, NULL as admin_job_field
+        FROM exam_reviews er
+        JOIN admins a ON er.admin_id = a.id
+        WHERE er.user_id = ?
+        ''', (user_id,))
     
     review = cursor.fetchone()
     

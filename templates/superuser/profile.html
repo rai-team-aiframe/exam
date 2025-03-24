@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container animate-on-scroll" data-animation="scale-in">
+        <div class="panel-header">
+            <h2>پروفایل سوپرادمین</h2>
+            
+            <div class="action-buttons">
+                <a href="/superuser/dashboard" class="btn btn-secondary">بازگشت به پنل سوپرادمین</a>
+            </div>
+        </div>
+        
+        <div id="error-container">
+            {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+        </div>
+        
+        {% if success %}
+            <div class="alert alert-success">
+                {{ success }}
+            </div>
+        {% endif %}
+        
+        <form id="profile-form" method="POST" action="/superuser/profile">
+            <div class="form-group animate-on-scroll stagger-1" data-animation="slide-in-right">
+                <label for="username">نام کاربری: <span class="required">*</span></label>
+                <input type="text" class="form-control" id="username" name="username" 
+                       placeholder="نام کاربری جدید را وارد کنید" 
+                       value="{{ superuser_data.username }}" required>
+                <small class="form-text text-muted">نام کاربری باید منحصر به فرد باشد</small>
+            </div>
+            
+            <div class="form-group animate-on-scroll stagger-2" data-animation="slide-in-right">
+                <label for="current_password">رمز عبور فعلی: <span class="required">*</span></label>
+                <input type="password" class="form-control" id="current_password" name="current_password" 
+                       placeholder="رمز عبور فعلی خود را وارد کنید" required>
+                <small class="form-text text-muted">برای تأیید هویت، رمز عبور فعلی خود را وارد کنید</small>
+            </div>
+            
+            <div class="form-group animate-on-scroll stagger-3" data-animation="slide-in-right">
+                <label for="new_password">رمز عبور جدید:</label>
+                <input type="password" class="form-control" id="new_password" name="new_password" 
+                       placeholder="رمز عبور جدید را وارد کنید (در صورت تمایل به تغییر)">
+                <small class="form-text text-muted">اگر نمی‌خواهید رمز عبور خود را تغییر دهید، این فیلد را خالی بگذارید</small>
+            </div>
+            
+            <div class="form-group animate-on-scroll stagger-4" data-animation="slide-in-right">
+                <label for="confirm_password">تکرار رمز عبور جدید:</label>
+                <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                       placeholder="رمز عبور جدید را مجدداً وارد کنید">
+                <small class="form-text text-muted">رمز عبور جدید را برای تأیید مجدداً وارد کنید</small>
+            </div>
+            
+            <div class="form-group animate-on-scroll stagger-5" data-animation="slide-in-up">
+                <button type="submit" class="btn btn-block btn-hover-effect">
+                    بروزرسانی اطلاعات کاربری
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-container {
+        max-width: 700px;
+    }
+    
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .btn-hover-effect {
+        background-color: #8e44ad;
+    }
+    
+    .btn-hover-effect:hover {
+        background-color: #732d91;
+    }
+    
+    .form-container h2 {
+        color: #8e44ad;
+    }
+    
+    .required {
+        color: red;
+    }
+    
+    .form-text {
+        font-size: 0.85rem;
+        color: #666;
+    }
+    
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}

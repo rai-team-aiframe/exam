@@ -12,12 +12,16 @@ from app.admin_auth import authenticate_admin, get_current_admin
 from app.database import get_user_by_username, get_user_by_id_number, has_completed_exam, get_exam_review, mark_exam_reviewed, reset_user_exam
 from app.pdf_generator import generate_user_report_pdf
 from app.admin_db import init_admin_db
+from app.date_utils import format_date_shamsi
 
 # Initialize router
 router = APIRouter(tags=["admin"])
 
 # Set up templates
 templates = Jinja2Templates(directory="templates")
+
+# Add date formatting function to Jinja environment
+templates.env.globals["format_date_shamsi"] = format_date_shamsi
 
 # Initialize admin database on startup
 init_admin_db()
@@ -404,7 +408,7 @@ def get_user_report_data(user_id: int):
         user_details['has_review'] = True
         user_details['review_text'] = exam_review['review_text']
         user_details['review_date'] = exam_review['created_at']
-        user_details['reviewed_by'] = exam_review['admin_username']
+        user_details['admin_job_field'] = exam_review['admin_job_field']
     else:
         user_details['has_review'] = False
     

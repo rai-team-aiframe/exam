@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="superuser-panel">
+        <div class="panel-header">
+            <h2 class="animate-on-scroll" data-animation="fade-in">پنل مدیریت سوپرادمین</h2>
+            
+            <div class="action-buttons animate-on-scroll" data-animation="fade-in">
+                <a href="/superuser/profile" class="btn btn-primary">
+                    <i class="fas fa-user-edit"></i> ویرایش پروفایل
+                </a>
+                <a href="/superuser/logout" class="btn btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i> خروج
+                </a>
+            </div>
+        </div>
+        
+        <div class="superuser-info animate-on-scroll" data-animation="slide-in-right">
+            <p>سوپرادمین: <strong>{{ superuser.sub }}</strong></p>
+            <p>در این پنل می‌توانید مدیران سیستم را مدیریت کنید.</p>
+        </div>
+        
+        <div class="admin-management-section animate-on-scroll" data-animation="slide-in-up">
+            <div class="section-header">
+                <h3>مدیریت مدیران</h3>
+                <a href="/superuser/admin/new" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> ایجاد مدیر جدید
+                </a>
+            </div>
+            
+            {% if admins|length > 0 %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">نام کاربری</th>
+                                <th scope="col">نام و نام خانوادگی</th>
+                                <th scope="col">تخصص</th>
+                                <th scope="col">کد ملی</th>
+                                <th scope="col">شماره تماس</th>
+                                <th scope="col">تاریخ ثبت نام</th>
+                                <th scope="col">عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for admin in admins %}
+                                <tr>
+                                    <td>{{ admin.username }}</td>
+                                    <td>{{ admin.full_name or "تعیین نشده" }}</td>
+                                    <td>{{ admin.job_field or "تعیین نشده" }}</td>
+                                    <td>{{ admin.id_number or "تعیین نشده" }}</td>
+                                    <td>{{ admin.phone_number or "تعیین نشده" }}</td>
+                                    <td>{{ format_date_shamsi(admin.created_at) }}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="/superuser/admin/{{ admin.id }}" class="btn btn-sm btn-primary">ویرایش</a>
+                                            <a href="/superuser/admin/{{ admin.id }}/delete" class="btn btn-sm btn-danger">حذف</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    هیچ مدیری یافت نشد. از دکمه "ایجاد مدیر جدید" برای اضافه کردن مدیر استفاده کنید.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .superuser-panel {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin: 2rem auto;
+    }
+    
+    .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .superuser-info {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        border-right: 4px solid #8e44ad;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+    
+    .admin-management-section {
+        margin-top: 2rem;
+    }
+    
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .table th, .table td {
+        padding: 0.75rem;
+        text-align: right;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: bold;
+    }
+    
+    .btn-group {
+        display: flex;
+        gap: 5px;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    .btn-primary {
+        background-color: #8e44ad;
+    }
+    
+    .btn-primary:hover {
+        background-color: #732d91;
+    }
+    
+    h2, h3 {
+        color: #8e44ad;
+    }
+</style>
+{% endblock %}

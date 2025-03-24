@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container text-center">
+        <div class="text-center" style="margin-bottom: 2rem;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 5rem; color: #e74c3c;"></i>
+        </div>
+        
+        <h2 style="color: #8e44ad;">{{ title|default("خطا") }}</h2>
+        
+        <div style="margin: 2rem 0;">
+            <p>{{ message|default("متأسفانه خطایی رخ داده است.") }}</p>
+        </div>
+        
+        <div class="animate-on-scroll" data-animation="fade-in" style="margin-top: 2rem;">
+            <a href="/superuser/dashboard" class="btn btn-hover-effect">بازگشت به پنل سوپرادمین</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-container {
+        max-width: 700px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-hover-effect {
+        background-color: #8e44ad;
+    }
+    
+    .btn-hover-effect:hover {
+        background-color: #732d91;
+    }
+</style>
+{% endblock %}
