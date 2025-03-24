@@ -36,7 +36,7 @@ function initExam() {
         });
     }
     
-    // Setup radio options with event delegation instead of direct binding
+    // Setup radio options with event delegation
     setupRadioOptionsForNewQuestion();
 }
 
@@ -77,7 +77,7 @@ function setupExamAnimations() {
     updateProgressBar();
     
     // Animate question card entrance
-    const questionCard = document.querySelector('.question-card');
+    const questionCard = document.querySelector('.question-card') || document.querySelector('.puzzle-card');
     if (questionCard) {
         questionCard.classList.add('scale-in');
     }
@@ -117,10 +117,17 @@ function setupAjaxSubmission() {
         if (event.target && event.target.id === 'submit-answer-btn') {
             event.preventDefault();
             
+            // Find the closest form to the button
+            const form = event.target.closest('form');
+            if (!form) {
+                console.error('Form not found!');
+                return;
+            }
+            
             // Get form data
-            const questionId = document.getElementById('question_id').value;
-            const currentQuestionIndex = document.getElementById('current_question_index').value;
-            const selectedOption = document.querySelector('input[name="response"]:checked');
+            const questionId = form.querySelector('#question_id').value;
+            const currentQuestionIndex = form.querySelector('#current_question_index').value;
+            const selectedOption = form.querySelector('input[name="response"]:checked');
             
             if (!selectedOption) {
                 alert('لطفاً یک گزینه را انتخاب کنید.');
@@ -135,6 +142,12 @@ function setupAjaxSubmission() {
             formData.append('current_question_index', currentQuestionIndex);
             formData.append('response', response);
             
+            // Check if this is a puzzle question with attempts tracking
+            const attemptsLeft = form.querySelector('#attempts-left');
+            if (attemptsLeft) {
+                formData.append('attempts_left', attemptsLeft.value);
+            }
+            
             // Show loading state
             const submitBtn = document.getElementById('submit-answer-btn');
             submitBtn.disabled = true;
@@ -142,8 +155,10 @@ function setupAjaxSubmission() {
             submitBtn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; display: inline-block;"></div> در حال بارگذاری...';
             
             // Start the page turn animation
-            const questionCard = document.getElementById('question-card');
-            questionCard.classList.add('page-turn-out');
+            const questionCard = document.querySelector('.question-card') || document.querySelector('.puzzle-card');
+            if (questionCard) {
+                questionCard.classList.add('page-turn-out');
+            }
             
             // Send AJAX request
             fetch('/exam/submit_answer', {
@@ -157,7 +172,7 @@ function setupAjaxSubmission() {
                 if (response.redirected) {
                     // If redirected to thank you page, follow the redirect
                     window.location.href = response.url;
-                    return;
+                    return { redirected: true };
                 }
                 
                 if (!response.ok) {
@@ -167,6 +182,48 @@ function setupAjaxSubmission() {
                 return response.json();
             })
             .then(data => {
+                if (data.redirected) {
+                    return;
+                }
+
+                if (data.redirect) {
+                    // If there's a redirect URL, navigate to it
+                    window.location.href = data.redirect;
+                    return;
+                }
+                
+                // Handle incorrect answer for puzzle questions
+                if (data.is_correct === false) {
+                    // Update attempts left indicator if present
+                    if (attemptsLeft) {
+                        attemptsLeft.value = data.attempts_left;
+                        updateAttemptsIndicators(data.attempts_left);
+                    }
+                    
+                    // Show feedback
+                    const feedbackContainer = document.getElementById('feedback-container') || createFeedbackContainer();
+                    feedbackContainer.innerHTML = `<div class="feedback-message feedback-error">${data.feedback}</div>`;
+                    
+                    // Reset button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnText;
+                    
+                    // Remove transition class
+                    if (questionCard) {
+                        questionCard.classList.remove('page-turn-out');
+                    }
+                    
+                    // Apply error shake animation
+                    if (questionCard) {
+                        questionCard.classList.add('puzzle-error');
+                        setTimeout(() => {
+                            questionCard.classList.remove('puzzle-error');
+                        }, 500);
+                    }
+                    
+                    return;
+                }
+                
                 if (data && data.html) {
                     // Add new question card with animation
                     setTimeout(() => {
@@ -175,30 +232,64 @@ function setupAjaxSubmission() {
                         tempContainer.innerHTML = data.html;
                         
                         // Extract the new question card
-                        const newQuestionCard = tempContainer.querySelector('.question-card');
-                        newQuestionCard.classList.add('page-turn-in');
-                        
-                        // Replace old card with new one
-                        const examContainer = document.getElementById('exam-container');
-                        examContainer.innerHTML = '';
-                        examContainer.appendChild(newQuestionCard);
-                        
-                        // Update progress bar
-                        if (data.progress) {
-                            document.querySelector('.progress-bar').style.width = data.progress + '%';
+                        const newQuestionCard = tempContainer.querySelector('.question-card') || tempContainer.querySelector('.puzzle-card');
+                        if (newQuestionCard) {
+                            newQuestionCard.classList.add('page-turn-in');
+                            
+                            // Replace old card with new one
+                            const questionContainer = document.getElementById('question-container');
+                            if (questionContainer) {
+                                questionContainer.innerHTML = '';
+                                questionContainer.appendChild(newQuestionCard);
+                                
+                                // Update progress bar
+                                if (data.progress) {
+                                    document.querySelector('.progress-bar').style.width = data.progress + '%';
+                                }
+                                
+                                // Update hidden fields
+                                if (data.question_index) {
+                                    const hiddenInput = document.getElementById('current-question-index');
+                                    if (hiddenInput) {
+                                        hiddenInput.value = data.question_index;
+                                    }
+                                }
+                                
+                                // If this is a puzzle question, initialize puzzle functionality
+                                if (data.question_type === 'puzzle') {
+                                    // Initialize puzzle type
+                                    if (typeof initSpecificPuzzleType === 'function') {
+                                        initSpecificPuzzleType();
+                                    }
+                                    
+                                    // Setup attempts indicators if needed
+                                    if (data.attempts_left) {
+                                        const attemptsInput = document.getElementById('attempts-left');
+                                        if (attemptsInput) {
+                                            attemptsInput.value = data.attempts_left;
+                                        }
+                                        if (typeof setupAttemptsIndicators === 'function') {
+                                            setupAttemptsIndicators();
+                                        }
+                                    }
+                                }
+                                
+                                // Setup radio options for the new question
+                                setupRadioOptionsForNewQuestion();
+                                
+                                // Remove animation classes after animation completes
+                                setTimeout(() => {
+                                    newQuestionCard.classList.remove('page-turn-in');
+                                }, 1000);
+                            } else {
+                                console.error('Question container not found!');
+                            }
+                        } else {
+                            console.error('New question card not found in response!');
                         }
-                        
-                        // Update question index in the hidden fields
-                        document.getElementById('current-question-index').value = data.question_index;
-                        
-                        // Setup radio options for the new question - using document-wide event handling now
-                        setupRadioOptionsForNewQuestion();
-                        
-                        // Remove animation classes after animation completes
-                        setTimeout(() => {
-                            newQuestionCard.classList.remove('page-turn-in');
-                        }, 1000);
                     }, 500);
+                } else {
+                    console.error('No HTML content in the response!', data);
                 }
             })
             .catch(error => {
@@ -210,8 +301,50 @@ function setupAjaxSubmission() {
                 submitBtn.innerHTML = originalBtnText;
                 
                 // Remove animation classes
-                questionCard.classList.remove('page-turn-out');
+                if (questionCard) {
+                    questionCard.classList.remove('page-turn-out');
+                }
             });
+        }
+    });
+}
+
+/**
+ * Create feedback container for puzzle questions if it doesn't exist
+ */
+function createFeedbackContainer() {
+    const questionCard = document.querySelector('.puzzle-card');
+    if (!questionCard) return null;
+    
+    const existingContainer = document.getElementById('feedback-container');
+    if (existingContainer) return existingContainer;
+    
+    const feedbackContainer = document.createElement('div');
+    feedbackContainer.id = 'feedback-container';
+    feedbackContainer.className = 'feedback-container';
+    
+    // Insert after puzzle number
+    const puzzleNumber = questionCard.querySelector('.puzzle-number');
+    if (puzzleNumber) {
+        puzzleNumber.after(feedbackContainer);
+    } else {
+        questionCard.insertBefore(feedbackContainer, questionCard.firstChild.nextSibling);
+    }
+    
+    return feedbackContainer;
+}
+
+/**
+ * Update attempts indicators for puzzle questions
+ */
+function updateAttemptsIndicators(attemptsLeft) {
+    const indicators = document.querySelectorAll('.attempt-indicator');
+    
+    indicators.forEach((indicator, index) => {
+        if (index >= attemptsLeft) {
+            indicator.classList.add('attempt-used');
+        } else {
+            indicator.classList.remove('attempt-used');
         }
     });
 }

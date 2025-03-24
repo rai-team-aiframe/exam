@@ -10,7 +10,8 @@
         <h2 id="thank-you-message">با تشکر از شما، {{ user.sub }} عزیز!</h2>
         
         <div id="follow-up-message" style="margin: 2rem 0;">
-            <p>پاسخ‌های شما با موفقیت ثبت شد. از مشارکت شما در این آزمون سپاسگزاریم.</p>
+            <p>پاسخ‌های شما به تمام سؤالات آزمون شخصیت و هوش با موفقیت ثبت شد.</p>
+            <p style="margin-top: 1rem;">از مشارکت شما در این آزمون سپاسگزاریم.</p>
             <p style="margin-top: 1rem;">کارشناسان ما در حال بررسی نتایج هستند و در طی چند روز آینده با شما تماس خواهند گرفت تا نتایج را به صورت کامل در اختیارتان قرار دهند.</p>
         </div>
         
@@ -19,6 +20,10 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', path='/css/puzzle-animations.css') }}">
 {% endblock %}
 
 {% block scripts %}

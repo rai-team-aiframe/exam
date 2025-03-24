@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="form-container text-center">
+        <div class="text-center" style="margin-bottom: 2rem;">
+            <i class="fas fa-pause-circle" style="font-size: 5rem; color: var(--primary-color);"></i>
+        </div>
+        
+        <h2>ادامه آزمون</h2>
+        
+        <div style="margin: 2rem 0;">
+            <p>{{ user.sub }} عزیز،</p>
+            <p style="margin-top: 1rem;">به نظر می‌رسد شما قبلاً آزمون را شروع کرده‌اید اما آن را تکمیل نکرده‌اید.</p>
+            <p style="margin-top: 1rem;">شما تاکنون به <strong>{{ progress }}</strong> سؤال از <strong>{{ total_questions }}</strong> سؤال پاسخ داده‌اید.</p>
+            <p style="margin-top: 1rem;">می‌توانید از همان نقطه‌ای که متوقف شده‌اید، ادامه دهید.</p>
+        </div>
+        
+        <div class="progress-visual">
+            <div class="progress-container" style="height: 20px; margin: 2rem 0;">
+                {% set progress_percentage = (progress / total_questions) * 100 %}
+                <div class="progress-bar" style="width: {{ progress_percentage }}%; height: 100%;"></div>
+            </div>
+            <div class="progress-labels">
+                <span>{{ progress }} از {{ total_questions }}</span>
+                <span>{{ "%.1f"|format(progress_percentage) }}%</span>
+            </div>
+        </div>
+        
+        <div class="animate-on-scroll" data-animation="fade-in" style="margin-top: 2rem;">
+            <a href="/exam/resume" class="btn btn-hover-effect">ادامه آزمون</a>
+            <a href="/home" class="btn btn-secondary" style="margin-right: 1rem;">بازگشت به صفحه اصلی</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .progress-visual {
+        margin: 2rem 0;
+    }
+    
+    .progress-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0.5rem;
+        color: #666;
+    }
+</style>
+{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', path='/css/puzzle-animations.css') }}">
+{% endblock %}

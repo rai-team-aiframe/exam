@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Grid background -->
+  <rect width="400" height="400" fill="#f5f5f5"/>
+  
+  <!-- Grid lines -->
+  <g stroke="#ddd" stroke-width="1">
+    <!-- Vertical lines -->
+    <line x1="50" y1="0" x2="50" y2="400"/>
+    <line x1="100" y1="0" x2="100" y2="400"/>
+    <line x1="150" y1="0" x2="150" y2="400"/>
+    <line x1="200" y1="0" x2="200" y2="400"/>
+    <line x1="250" y1="0" x2="250" y2="400"/>
+    <line x1="300" y1="0" x2="300" y2="400"/>
+    <line x1="350" y1="0" x2="350" y2="400"/>
+    
+    <!-- Horizontal lines -->
+    <line x1="0" y1="50" x2="400" y2="50"/>
+    <line x1="0" y1="100" x2="400" y2="100"/>
+    <line x1="0" y1="150" x2="400" y2="150"/>
+    <line x1="0" y1="200" x2="400" y2="200"/>
+    <line x1="0" y1="250" x2="400" y2="250"/>
+    <line x1="0" y1="300" x2="400" y2="300"/>
+    <line x1="0" y1="350" x2="400" y2="350"/>
+  </g>
+  
+  <!-- Grid walls -->
+  <g fill="#333">
+    <!-- Top border -->
+    <rect x="0" y="0" width="400" height="50"/>
+    <!-- Bottom border -->
+    <rect x="0" y="350" width="400" height="50"/>
+    <!-- Left border -->
+    <rect x="0" y="0" width="50" height="400"/>
+    <!-- Right border -->
+    <rect x="350" y="0" width="50" height="400"/>
+    
+    <!-- Inner walls -->
+    <rect x="150" y="100" width="50" height="150"/>
+    <rect x="200" y="150" width="50" height="50"/>
+    <rect x="250" y="100" width="50" height="150"/>
+  </g>
+  
+  <!-- Start point (human) -->
+  <circle cx="75" cy="75" r="20" fill="#3498db"/>
+  
+  <!-- End point (home) -->
+  <rect x="300" y="300" width="40" height="40" fill="#2ecc71" rx="5" ry="5"/>
+</svg>

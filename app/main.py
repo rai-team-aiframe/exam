@@ -6,20 +6,19 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
-# Import modules using absolute imports instead of relative imports
-from app.database import init_db, init_db_updates
-from app.questions import import_questions_from_list
+# Import modules
+from app.database import init_db, init_db_updates, import_all_questions
 from app.routers import home, auth, exam, admin, superuser
 from app.admin_db import init_admin_db
 from app.superuser_db import init_superuser_db
 
 # Create the FastAPI app
-app = FastAPI(title="آزمون آنلاین شخصیت")
+app = FastAPI(title="آزمون آنلاین شخصیت و هوش")
 
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify the domains
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -36,7 +35,7 @@ app.include_router(home.router)
 app.include_router(auth.router)
 app.include_router(exam.router)
 app.include_router(admin.router)
-app.include_router(superuser.router)  # Add superuser router
+app.include_router(superuser.router)
 
 # Root redirect to home
 @app.get("/", response_class=HTMLResponse)
@@ -58,7 +57,10 @@ async def startup_event():
     # Initialize superuser database
     init_superuser_db()
     
-    # Import questions from the existing list
+    # Import all questions (both personality and puzzle)
+    import_all_questions()
+    
+    # Import questions from the existing list (for backwards compatibility)
     questions_list = [
         "1- من اصولا شخص نگراني نيستم.",
         "2- دوست دارم هميشه افراد زيادي دور و برم باشند.",
@@ -122,6 +124,8 @@ async def startup_event():
         "60- تلاش مي كنم هر كاري را به نحو ماهرانه اي انجام دهم."
     ]
     
+    # Import existing questions using the old function for backwards compatibility
+    from app.questions import import_questions_from_list
     import_questions_from_list(questions_list)
 
 # Shutdown event

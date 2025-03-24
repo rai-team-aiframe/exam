@@ -1,0 +1,34 @@
+<div class="puzzle-card animate-on-scroll" data-animation="scale-in" id="puzzle-card" data-puzzle-type="{{ question.question_data.puzzle_type }}" data-puzzle-data="{{ question.question_data|tojson }}">
+    <div class="puzzle-number">سوال {{ question_index }} از {{ total_questions }} (پازل)</div>
+    
+    <div class="puzzle-text">{{ question.question_text }}</div>
+    
+    <div id="puzzle-visual" class="puzzle-visual">
+        <!-- Visual representation of the puzzle will be inserted here via JavaScript -->
+    </div>
+    
+    <form id="answer-form">
+        <input type="hidden" name="question_id" id="question_id" value="{{ question.id }}">
+        <input type="hidden" name="current_question_index" id="current_question_index" value="{{ question_index }}">
+        <input type="hidden" name="attempts_left" id="attempts-left" value="{{ attempts_left }}">
+        
+        <div class="radio-options">
+            {% set options = question.question_data.options %}
+            {% for option in options %}
+                <label class="radio-option">
+                    {% if option is mapping %}
+                        {{ option.text }}
+                    {% else %}
+                        {{ option }}
+                    {% endif %}
+                    <input type="radio" name="response" value="{{ loop.index0 }}" required>
+                    <span class="radio-checkmark"></span>
+                </label>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center" style="margin-top: 2rem;">
+            <button id="submit-answer-btn" type="button" class="btn btn-hover-effect" disabled>تأیید</button>
+        </div>
+    </form>
+</div>

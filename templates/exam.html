@@ -4,63 +4,120 @@
 <div class="container">
     <input type="hidden" id="current-question-index" value="{{ question_index }}">
     <input type="hidden" id="total-questions" value="{{ total_questions }}">
+    {% if question.question_type == 'puzzle' %}
+    <input type="hidden" id="attempts-left" value="{{ attempts_left }}">
+    {% endif %}
     
     <div class="progress-container">
         {% set progress_percentage = (question_index / total_questions) * 100 %}
         <div class="progress-bar" style="width: {{ progress_percentage }}%;"></div>
     </div>
     
-    <div id="exam-container">
-        <div class="question-card animate-on-scroll" data-animation="scale-in" id="question-card">
-            <div class="question-number">سوال {{ question_index }} از {{ total_questions }}</div>
-            
-            <div class="question-text">{{ question.question_text }}</div>
-            
-            <form id="answer-form">
-                <input type="hidden" name="question_id" id="question_id" value="{{ question.id }}">
-                <input type="hidden" name="current_question_index" id="current_question_index" value="{{ question_index }}">
+    <div id="question-container">
+        {% if question.question_type == 'personality' %}
+            <div class="question-card animate-on-scroll" data-animation="scale-in" id="question-card">
+                <div class="question-number">سوال {{ question_index }} از {{ total_questions }}</div>
+                <div class="question-text">{{ question.question_text }}</div>
                 
-                <div class="radio-options">
-                    <label class="radio-option">
-                        كاملاً مخالفم
-                        <input type="radio" name="response" value="1" required>
-                        <span class="radio-checkmark"></span>
-                    </label>
+                <form id="answer-form">
+                    <input type="hidden" name="question_id" id="question_id" value="{{ question.id }}">
+                    <input type="hidden" name="current_question_index" id="current_question_index" value="{{ question_index }}">
                     
-                    <label class="radio-option">
-                        مخالفم
-                        <input type="radio" name="response" value="2">
-                        <span class="radio-checkmark"></span>
-                    </label>
+                    <div class="radio-options">
+                        <label class="radio-option">
+                            كاملاً مخالفم
+                            <input type="radio" name="response" value="1" required>
+                            <span class="radio-checkmark"></span>
+                        </label>
+                        
+                        <label class="radio-option">
+                            مخالفم
+                            <input type="radio" name="response" value="2">
+                            <span class="radio-checkmark"></span>
+                        </label>
+                        
+                        <label class="radio-option">
+                            خنثي
+                            <input type="radio" name="response" value="3">
+                            <span class="radio-checkmark"></span>
+                        </label>
+                        
+                        <label class="radio-option">
+                            موافقم
+                            <input type="radio" name="response" value="4">
+                            <span class="radio-checkmark"></span>
+                        </label>
+                        
+                        <label class="radio-option">
+                            كاملاً موافقم
+                            <input type="radio" name="response" value="5">
+                            <span class="radio-checkmark"></span>
+                        </label>
+                    </div>
                     
-                    <label class="radio-option">
-                        خنثي
-                        <input type="radio" name="response" value="3">
-                        <span class="radio-checkmark"></span>
-                    </label>
-                    
-                    <label class="radio-option">
-                        موافقم
-                        <input type="radio" name="response" value="4">
-                        <span class="radio-checkmark"></span>
-                    </label>
-                    
-                    <label class="radio-option">
-                        كاملاً موافقم
-                        <input type="radio" name="response" value="5">
-                        <span class="radio-checkmark"></span>
-                    </label>
+                    <div class="text-center" style="margin-top: 2rem;">
+                        <button id="submit-answer-btn" type="button" class="btn btn-hover-effect" disabled>سوال بعدی</button>
+                    </div>
+                </form>
+            </div>
+        {% else %}
+            <div class="puzzle-card animate-on-scroll" data-animation="scale-in" id="puzzle-card" data-puzzle-type="{{ question.question_data.puzzle_type }}" data-puzzle-data="{{ question.question_data|tojson }}">
+                <div class="puzzle-number">سوال {{ question_index }} از {{ total_questions }} (پازل)</div>
+                
+                {% if feedback %}
+                <div id="feedback-container" class="feedback-container">
+                    <div class="feedback-message feedback-error">{{ feedback }}</div>
+                </div>
+                {% endif %}
+                
+                <div class="puzzle-text">{{ question.question_text }}</div>
+                
+                <div id="puzzle-visual" class="puzzle-visual">
+                    <!-- Visual representation of the puzzle will be inserted here via JavaScript -->
                 </div>
                 
-                <div class="text-center" style="margin-top: 2rem;">
-                    <button id="submit-answer-btn" type="button" class="btn btn-hover-effect" disabled>سوال بعدی</button>
-                </div>
-            </form>
-        </div>
+                <form id="answer-form">
+                    <input type="hidden" name="question_id" id="question_id" value="{{ question.id }}">
+                    <input type="hidden" name="current_question_index" id="current_question_index" value="{{ question_index }}">
+                    <input type="hidden" name="attempts_left" id="attempts-left" value="{{ attempts_left }}">
+                    
+                    <div class="radio-options">
+                        {% set options = question.question_data.options %}
+                        {% for option in options %}
+                            <label class="radio-option">
+                                {% if option is mapping %}
+                                    {{ option.text }}
+                                {% else %}
+                                    {{ option }}
+                                {% endif %}
+                                <input type="radio" name="response" value="{{ loop.index0 }}" required>
+                                <span class="radio-checkmark"></span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="text-center" style="margin-top: 2rem; margin-bottom: 2rem;">
+                        <button id="submit-answer-btn" type="button" class="btn btn-hover-effect" disabled>تأیید</button>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', path='/js/exam.js') }}"></script>
+<script src="{{ url_for('static', path='/js/puzzle.js') }}"></script>
+<script>
+    // Initialize appropriate code based on question type
+    document.addEventListener('DOMContentLoaded', function() {
+        const puzzleCard = document.querySelector('.puzzle-card');
+        if (puzzleCard) {
+            // Initialize puzzle visualizations
+            initPuzzleVisualizations();
+            setupAttemptsIndicators();
+        }
+    });
+</script>
 {% endblock %}

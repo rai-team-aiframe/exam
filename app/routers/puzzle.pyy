@@ -1,0 +1,276 @@
+# app/routers/puzzle.py
+from fastapi import APIRouter, Request, Form, Depends, HTTPException, status
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
+from typing import Dict, List, Optional, Any
+import json
+
+# Import functions
+from app.puzzles import (
+    get_all_puzzles, get_puzzle_by_id, save_puzzle_response, 
+    mark_puzzle_section_completed, has_completed_puzzle_section
+)
+from app.database import has_completed_exam, has_completed_all_sections
+from app.routers.auth import get_current_user
+from app.date_utils import format_date_shamsi
+
+# Initialize router
+router = APIRouter(tags=["puzzle"])
+
+# Set up templates
+templates = Jinja2Templates(directory="templates")
+
+# Add date formatting function to Jinja environment
+templates.env.globals["format_date_shamsi"] = format_date_shamsi
+
+@router.get("/puzzle", response_class=HTMLResponse)
+async def puzzle_page(request: Request, current_user: Dict = Depends(get_current_user)):
+    """
+    Render the puzzle start page or redirect to login if not authenticated.
+    Also checks if the user has completed the personality section first.
+    """
+    if not current_user:
+        return RedirectResponse(url="/login")
+    
+    # Check if the user has completed the personality test first
+    if not has_completed_exam(current_user["id"]):
+        return templates.TemplateResponse(
+            "sections_order.html", 
+            {
+                "request": request, 
+                "title": "تکمیل بخش‌های آزمون",
+                "user": current_user,
+                "message": "لطفاً ابتدا بخش آزمون شخصیت را تکمیل کنید.",
+                "redirect_url": "/exam"
+            }
+        )
+    
+    # Check if user has already completed the puzzle section
+    if has_completed_puzzle_section(current_user["id"]):
+        # Check if there's a review available
+        if has_completed_all_sections(current_user["id"]):
+            # Show the waiting for review page
+            return templates.TemplateResponse(
+                "all_completed.html", 
+                {
+                    "request": request, 
+                    "title": "آزمون تکمیل شده",
+                    "user": current_user
+                }
+            )
+        else:
+            # Show the already completed page for puzzles
+            return templates.TemplateResponse(
+                "puzzle_already_completed.html", 
+                {
+                    "request": request, 
+                    "title": "بخش پازل قبلاً تکمیل شده",
+                    "user": current_user
+                }
+            )
+    
+    return templates.TemplateResponse(
+        "puzzle_intro.html", 
+        {
+            "request": request, 
+            "title": "آزمون پازل",
+            "user": current_user
+        }
+    )
+
+@router.get("/puzzle/start", response_class=HTMLResponse)
+async def start_puzzle(request: Request, current_user: Dict = Depends(get_current_user)):
+    """
+    Start the puzzle section and load the first puzzle.
+    """
+    if not current_user:
+        return RedirectResponse(url="/login")
+    
+    # Check if the user has completed the personality test first
+    if not has_completed_exam(current_user["id"]):
+        return RedirectResponse(url="/exam")
+    
+    # Check if user has already completed the puzzle section
+    if has_completed_puzzle_section(current_user["id"]):
+        return RedirectResponse(url="/puzzle")
+    
+    # Get all puzzles
+    puzzles = get_all_puzzles()
+    
+    # If no puzzles in DB, redirect to error page
+    if not puzzles:
+        return templates.TemplateResponse(
+            "error.html", 
+            {
+                "request": request, 
+                "title": "خطا",
+                "message": "سوالات پازل در دسترس نیست. لطفاً با مدیر سیستم تماس بگیرید."
+            }
+        )
+    
+    # Start with the first puzzle
+    current_puzzle = puzzles[0]
+    total_puzzles = len(puzzles)
+    
+    return templates.TemplateResponse(
+        "puzzle.html", 
+        {
+            "request": request, 
+            "title": "آزمون پازل",
+            "user": current_user,
+            "puzzle": current_puzzle,
+            "puzzle_index": 1,
+            "total_puzzles": total_puzzles,
+            "attempts_left": 2
+        }
+    )
+
+@router.post("/puzzle/submit_answer")
+async def submit_puzzle_answer(
+    request: Request,
+    puzzle_id: int = Form(...),
+    response: str = Form(...),
+    current_puzzle_index: int = Form(...),
+    attempts_left: int = Form(...),
+    current_user: Dict = Depends(get_current_user)
+):
+    """
+    Process a puzzle answer submission. Handles scoring and multiple attempts.
+    """
+    if not current_user:
+        return RedirectResponse(url="/login")
+    
+    # Get all puzzles
+    puzzles = get_all_puzzles()
+    total_puzzles = len(puzzles)
+    
+    # Get the current puzzle
+    current_puzzle = get_puzzle_by_id(puzzle_id)
+    
+    # Calculate attempts made and score
+    attempts_made = 3 - attempts_left  # We start with 2 attempts left, so this is either 1 or 2
+    is_correct = response == current_puzzle["correct_answer"]
+    
+    # Calculate score based on attempts
+    score = 0.0
+    if is_correct:
+        if attempts_made == 1:  # First try
+            score = 1.0
+        elif attempts_made == 2:  # Second try
+            score = 0.5
+    
+    # If correct or no attempts left, save the final answer and move on
+    should_move_to_next = is_correct or attempts_left <= 1
+    
+    if should_move_to_next:
+        # Save the response with final score
+        save_puzzle_response(
+            user_id=current_user["id"],
+            puzzle_id=puzzle_id,
+            response=response,
+            attempts=attempts_made,
+            score=score
+        )
+        
+        # Check if this was the last puzzle
+        if current_puzzle_index >= total_puzzles:
+            # Mark the puzzle section as completed
+            mark_puzzle_section_completed(current_user["id"])
+            
+            # Check if this is an AJAX request
+            is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+            if is_ajax:
+                return JSONResponse(content={
+                    "redirect": "/puzzle/thank_you"
+                })
+            else:
+                # Regular form submission
+                return RedirectResponse(url="/puzzle/thank_you", status_code=status.HTTP_303_SEE_OTHER)
+        
+        # Move to the next puzzle
+        next_puzzle_index = current_puzzle_index
+        next_puzzle = puzzles[next_puzzle_index]
+        
+        # Check if this is an AJAX request
+        is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+        
+        if is_ajax:
+            # For AJAX requests, return HTML fragment and data as JSON
+            puzzle_card_html = templates.get_template("partials/puzzle_card.html").render(
+                {
+                    "puzzle": next_puzzle,
+                    "puzzle_index": next_puzzle_index + 1,
+                    "total_puzzles": total_puzzles,
+                    "attempts_left": 2  # Reset attempts for new puzzle
+                }
+            )
+            
+            progress_percentage = ((next_puzzle_index + 1) / total_puzzles) * 100
+            
+            return JSONResponse(content={
+                "html": puzzle_card_html,
+                "puzzle_index": next_puzzle_index + 1,
+                "total_puzzles": total_puzzles,
+                "progress": progress_percentage,
+                "attempts_left": 2
+            })
+        else:
+            # For regular form submissions
+            return templates.TemplateResponse(
+                "puzzle.html", 
+                {
+                    "request": request, 
+                    "title": "آزمون پازل",
+                    "user": current_user,
+                    "puzzle": next_puzzle,
+                    "puzzle_index": next_puzzle_index + 1,
+                    "total_puzzles": total_puzzles,
+                    "attempts_left": 2
+                }
+            )
+    else:
+        # Incorrect answer but still has attempts left - stay on same puzzle
+        is_ajax = request.headers.get("X-Requested-With") == "XMLHttpRequest"
+        
+        # Reduce attempts left
+        attempts_left -= 1
+        
+        if is_ajax:
+            # For AJAX requests, return the result with feedback
+            return JSONResponse(content={
+                "is_correct": False,
+                "attempts_left": attempts_left,
+                "feedback": "پاسخ اشتباه است. لطفاً دوباره تلاش کنید."
+            })
+        else:
+            # For regular form submissions
+            return templates.TemplateResponse(
+                "puzzle.html", 
+                {
+                    "request": request, 
+                    "title": "آزمون پازل",
+                    "user": current_user,
+                    "puzzle": current_puzzle,
+                    "puzzle_index": current_puzzle_index,
+                    "total_puzzles": total_puzzles,
+                    "attempts_left": attempts_left,
+                    "feedback": "پاسخ اشتباه است. لطفاً دوباره تلاش کنید."
+                }
+            )
+
+@router.get("/puzzle/thank_you", response_class=HTMLResponse)
+async def puzzle_thank_you_page(request: Request, current_user: Dict = Depends(get_current_user)):
+    """
+    Show thank you page after completing the puzzle section.
+    """
+    if not current_user:
+        return RedirectResponse(url="/login")
+    
+    return templates.TemplateResponse(
+        "puzzle_thank_you.html", 
+        {
+            "request": request, 
+            "title": "پایان بخش پازل",
+            "user": current_user
+        }
+    )
