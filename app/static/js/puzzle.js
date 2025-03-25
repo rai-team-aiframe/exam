@@ -233,3 +233,52 @@ function setupPuzzleAnimations() {
         option.style.animationDelay = `${0.1 + (index * 0.1)}s`;
     });
 }
+
+/**
+ * Get puzzle option text by index
+ * This utility function helps with displaying puzzle answers in the admin interface
+ */
+function getPuzzleOptionText(puzzleData, selectedIndex) {
+    if (!puzzleData || !puzzleData.options) return "نامشخص";
+    
+    const option = puzzleData.options[selectedIndex];
+    if (typeof option === 'string') {
+        return option;
+    } else if (typeof option === 'object' && option !== null) {
+        return option.text || option.value || "نامشخص";
+    }
+    
+    return "نامشخص";
+}
+
+/**
+ * Get score text based on score value
+ */
+function getScoreText(score) {
+    if (score === 1.0) {
+        return "امتیاز کامل (1.0)";
+    } else if (score === 0.5) {
+        return "امتیاز نسبی (0.5)";
+    } else {
+        return "امتیاز صفر (0.0)";
+    }
+}
+
+/**
+ * Format puzzle answers for admin view
+ * This function takes puzzle data and response and returns a formatted string
+ */
+function formatPuzzleAnswer(puzzleData, response, score, attempts) {
+    let answerText = "";
+    
+    // Get the selected option text
+    const selectedIndex = parseInt(response);
+    const optionText = getPuzzleOptionText(puzzleData, selectedIndex);
+    
+    // Format with score and attempts
+    answerText += `گزینه انتخابی: ${optionText}\n`;
+    answerText += `امتیاز: ${getScoreText(score)}\n`;
+    answerText += `تعداد تلاش: ${attempts}`;
+    
+    return answerText;
+}

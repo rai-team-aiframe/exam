@@ -62,35 +62,166 @@
         </div>
         {% endif %}
         
-        <div class="exam-responses animate-on-scroll" data-animation="slide-in-up">
+        <div class="response-tabs animate-on-scroll" data-animation="slide-in-up">
             <h3>پاسخ های آزمون</h3>
             
-            {% if exam_responses|length > 0 %}
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>شماره</th>
-                                <th>سوال</th>
-                                <th>پاسخ</th>
-                                <th>تاریخ پاسخ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for response in exam_responses %}
-                                <tr>
-                                    <td>{{ loop.index }}</td>
-                                    <td>{{ response.question_text }}</td>
-                                    <td>{{ response.response_text }}</td>
-                                    <td>{{ format_date_shamsi(response.created_at) }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <div class="tab-container">
+                <div class="tab-header">
+                    <button class="tab-btn active" data-tab="all-responses">همه پاسخ ها</button>
+                    <button class="tab-btn" data-tab="personality-responses">سوالات شخصیت</button>
+                    <button class="tab-btn" data-tab="puzzle-responses">پازل ها</button>
                 </div>
-            {% else %}
-                <div class="alert alert-info">این کاربر هنوز هیچ پاسخی به آزمون نداده است.</div>
-            {% endif %}
+                
+                <div class="tab-content">
+                    <!-- All Responses Tab -->
+                    <div id="all-responses" class="tab-pane active">
+                        {% if exam_responses|length > 0 %}
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>شماره</th>
+                                            <th>نوع</th>
+                                            <th>سوال</th>
+                                            <th>پاسخ</th>
+                                            <th>جزئیات</th>
+                                            <th>تاریخ پاسخ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for response in exam_responses %}
+                                            <tr>
+                                                <td>{{ loop.index }}</td>
+                                                <td>
+                                                    {% if response.question_type == 'personality' %}
+                                                        <span class="badge badge-primary">شخصیت</span>
+                                                    {% else %}
+                                                        <span class="badge badge-success">پازل</span>
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ response.question_text }}</td>
+                                                <td>{{ response.response_text }}</td>
+                                                <td>
+                                                    {% if response.question_type == 'puzzle' %}
+                                                        <span class="score-badge" style="background-color: 
+                                                            {% if response.score == 1.0 %}#2ecc71
+                                                            {% elif response.score == 0.5 %}#f39c12
+                                                            {% else %}#e74c3c
+                                                            {% endif %};">
+                                                            {{ response.score_text }}
+                                                        </span>
+                                                        <span class="attempts-badge">{{ response.attempts_text }}</span>
+                                                    {% else %}
+                                                        -
+                                                    {% endif %}
+                                                </td>
+                                                <td>{{ format_date_shamsi(response.created_at) }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">این کاربر هنوز هیچ پاسخی به آزمون نداده است.</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Personality Responses Tab -->
+                    <div id="personality-responses" class="tab-pane">
+                        {% set personality_responses = exam_responses|selectattr('question_type', 'equalto', 'personality')|list %}
+                        
+                        {% if personality_responses|length > 0 %}
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>شماره</th>
+                                            <th>سوال</th>
+                                            <th>پاسخ</th>
+                                            <th>تاریخ پاسخ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for response in personality_responses %}
+                                            <tr>
+                                                <td>{{ loop.index }}</td>
+                                                <td>{{ response.question_text }}</td>
+                                                <td>{{ response.response_text }}</td>
+                                                <td>{{ format_date_shamsi(response.created_at) }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">این کاربر هنوز هیچ پاسخی به سوالات شخصیت نداده است.</div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Puzzle Responses Tab -->
+                    <div id="puzzle-responses" class="tab-pane">
+                        {% set puzzle_responses = exam_responses|selectattr('question_type', 'equalto', 'puzzle')|list %}
+                        
+                        {% if puzzle_responses|length > 0 %}
+                            <div class="puzzle-stats">
+                                <div class="stats-item">
+                                    <span class="stats-label">کل پازل ها:</span>
+                                    <span class="stats-value">{{ puzzle_responses|length }}</span>
+                                </div>
+                                <div class="stats-item">
+                                    <span class="stats-label">امتیاز کامل:</span>
+                                    <span class="stats-value">{{ puzzle_responses|selectattr('score', 'equalto', 1.0)|list|length }}</span>
+                                </div>
+                                <div class="stats-item">
+                                    <span class="stats-label">امتیاز نسبی:</span>
+                                    <span class="stats-value">{{ puzzle_responses|selectattr('score', 'equalto', 0.5)|list|length }}</span>
+                                </div>
+                                <div class="stats-item">
+                                    <span class="stats-label">امتیاز صفر:</span>
+                                    <span class="stats-value">{{ puzzle_responses|selectattr('score', 'equalto', 0.0)|list|length }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>شماره</th>
+                                            <th>سوال</th>
+                                            <th>پاسخ</th>
+                                            <th>امتیاز</th>
+                                            <th>تلاش</th>
+                                            <th>تاریخ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for response in puzzle_responses %}
+                                            <tr>
+                                                <td>{{ loop.index }}</td>
+                                                <td>{{ response.question_text }}</td>
+                                                <td>{{ response.response_text }}</td>
+                                                <td>
+                                                    <span class="score-badge" style="background-color: 
+                                                        {% if response.score == 1.0 %}#2ecc71
+                                                        {% elif response.score == 0.5 %}#f39c12
+                                                        {% else %}#e74c3c
+                                                        {% endif %};">
+                                                        {{ response.score_text }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ response.attempts_text }}</td>
+                                                <td>{{ format_date_shamsi(response.created_at) }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">این کاربر هنوز هیچ پاسخی به سوالات پازل نداده است.</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -201,5 +332,132 @@
     .btn-danger:hover {
         background-color: #c82333;
     }
+    
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        font-weight: bold;
+        color: white;
+    }
+    
+    .badge-primary {
+        background-color: #3498db;
+    }
+    
+    .badge-success {
+        background-color: #2ecc71;
+    }
+    
+    .score-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        font-weight: bold;
+        color: white;
+    }
+    
+    .attempts-badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+    }
+    
+    /* Tab styling */
+    .tab-container {
+        margin-top: 2rem;
+    }
+    
+    .tab-header {
+        display: flex;
+        gap: 5px;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .tab-btn {
+        padding: 0.75rem 1.5rem;
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        border-bottom: none;
+        border-radius: 4px 4px 0 0;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .tab-btn.active {
+        background-color: white;
+        border-bottom: 2px solid var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .tab-pane {
+        display: none;
+        padding: 1.5rem;
+        background-color: white;
+        border: 1px solid #ddd;
+        border-top: none;
+        border-radius: 0 0 4px 4px;
+    }
+    
+    .tab-pane.active {
+        display: block;
+    }
+    
+    .puzzle-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 4px;
+    }
+    
+    .stats-item {
+        padding: 0.75rem;
+        background-color: white;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+    
+    .stats-label {
+        font-weight: bold;
+        margin-left: 0.5rem;
+    }
+    
+    .stats-value {
+        font-size: 1.25rem;
+        color: var(--primary-color);
+        font-weight: bold;
+    }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Setup tab functionality
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons and panes
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabPanes.forEach(pane => pane.classList.remove('active'));
+                
+                // Add active class to clicked button
+                button.classList.add('active');
+                
+                // Show the corresponding tab pane
+                const tabId = button.dataset.tab;
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+    });
+</script>
 {% endblock %}

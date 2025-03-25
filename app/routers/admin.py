@@ -1,5 +1,5 @@
 # app/routers/admin.py
-from fastapi import APIRouter, Request, Form, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Request, Form, Depends, HTTPException, status, Query, Path
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, StreamingResponse
 from typing import Dict, List, Optional, Any
@@ -412,30 +412,73 @@ def get_user_report_data(user_id: int):
     else:
         user_details['has_review'] = False
     
-    # Get exam responses with question text
+    # Get exam responses with question text - including both personality and puzzle questions
     cursor.execute("""
-        SELECT r.id, q.question_text, r.response, r.created_at
+        SELECT r.id, q.id as question_id, q.question_text, q.question_type, 
+               r.response, r.attempts, r.score, r.created_at,
+               q.question_data
         FROM exam_responses r
-        JOIN personality_questions q ON r.question_id = q.id
+        JOIN exam_questions q ON r.question_id = q.id
         WHERE r.user_id = ?
-        ORDER BY q.id
+        ORDER BY q.question_order
     """, (user_id,))
     
     responses = [dict(row) for row in cursor.fetchall()]
     
-    # Map response values to text
+    # Process responses based on question type
     for response in responses:
-        value = response["response"]
-        if value == 1:
-            response["response_text"] = "كاملاً مخالفم"
-        elif value == 2:
-            response["response_text"] = "مخالفم"
-        elif value == 3:
-            response["response_text"] = "خنثي"
-        elif value == 4:
-            response["response_text"] = "موافقم"
-        elif value == 5:
-            response["response_text"] = "كاملاً موافقم"
+        if response["question_type"] == "personality":
+            # Map personality response values to text
+            value = int(response["response"])
+            if value == 1:
+                response["response_text"] = "كاملاً مخالفم"
+            elif value == 2:
+                response["response_text"] = "مخالفم"
+            elif value == 3:
+                response["response_text"] = "خنثي"
+            elif value == 4:
+                response["response_text"] = "موافقم"
+            elif value == 5:
+                response["response_text"] = "كاملاً موافقم"
+        else:  # puzzle
+            # Parse question data
+            if response["question_data"]:
+                data = json.loads(response["question_data"])
+                options = data.get("options", [])
+                
+                # Get selected option text
+                try:
+                    option_index = int(response["response"])
+                    if isinstance(options, list):
+                        if option_index < len(options):
+                            if isinstance(options[option_index], dict):
+                                response["response_text"] = options[option_index].get("text", options[option_index].get("value", ""))
+                            else:
+                                response["response_text"] = options[option_index]
+                        else:
+                            response["response_text"] = f"گزینه {option_index + 1}"
+                    else:
+                        response["response_text"] = response["response"]
+                except (ValueError, IndexError):
+                    response["response_text"] = response["response"]
+                
+                # Add score information
+                if response["score"] is not None:
+                    if response["score"] == 1.0:
+                        response["score_text"] = "امتیاز کامل (1.0)"
+                    elif response["score"] == 0.5:
+                        response["score_text"] = "امتیاز نسبی (0.5)"
+                    else:
+                        response["score_text"] = "امتیاز صفر (0.0)"
+                else:
+                    response["score_text"] = "بدون امتیاز"
+                
+                # Add attempts information
+                response["attempts_text"] = f"{response['attempts']} تلاش"
+            else:
+                response["response_text"] = response["response"]
+                response["score_text"] = "نامشخص"
+                response["attempts_text"] = "نامشخص"
     
     conn.close()
     
